@@ -48,7 +48,6 @@ struct EventsView: View {
 				}
 			  } label: {
 				Image(systemName: "plus")
-				
 			  }
 		    }
 		}

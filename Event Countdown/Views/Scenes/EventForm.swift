@@ -11,18 +11,11 @@ struct EventForm: View {
     @State private var date: Date = Date()
     @State private var textColor: Color = Color.black
     @State private var title = ""
+    @State private var navigationTitle: String = ""
     
     public var mode: Mode
     public var event: Event?
     public var onSave: (Event) -> Void //this passes the vent back to the parent view
-    private var navigationTitle: String  {
-	  if let eventTitle = event?.title {
-		print(eventTitle)
-		return eventTitle
-	  } else {
-		return "Add Event"
-	  }
-    }
     
     var body: some View {
 	  NavigationStack {
@@ -54,12 +47,12 @@ struct EventForm: View {
 		    title = event.title
 		    date = event.date
 		    textColor = event.textColor
+		    navigationTitle = "Edit \(title)"
+		} else if mode == .add {
+		    navigationTitle = "Add Event"
+		    
 		}
 		print("Event: \(String(describing: event))")
-	  }
-	  .onDisappear {
-		    //		mode = .none
-		    //		event = nil
 	  }
     }
     
@@ -68,13 +61,13 @@ struct EventForm: View {
 		switch mode {
 		case .add:
 		    let newEvent = Event(title: title, date: date, textColor: textColor)
-		    onSave(newEvent)
+		    onSave(newEvent) //passes this back to eventsView
 		case .edit:
 		    if var existingEvent = event {
 			  existingEvent.title = title
 			  existingEvent.date = date
 			  existingEvent.textColor = textColor
-			  onSave(existingEvent)
+			  onSave(existingEvent) // passes this back to eventsView
 		    }
 		case .none:
 		    break
