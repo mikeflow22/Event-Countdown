@@ -9,6 +9,8 @@ import SwiftUI
 
 struct EventRow: View {
     @State var currentTime: Date = Date()
+    
+    
     var relativeDate: String {
 	  let timeInterval = event.date.timeIntervalSince(currentTime)
 	  if timeInterval <= 0 {
@@ -24,7 +26,7 @@ struct EventRow: View {
 		if days > 0 { components.append("\(days)d") }
 		if hours > 0 { components.append("\(hours)h") }
 		if mins > 0 { components.append("\(mins)m") }
-		if seconds > 0 { components.append("\(seconds)s") }
+		if seconds >= 0 { components.append("\(seconds)s") }
 		
 		return components.joined(separator: ", ")
 	  }
@@ -40,7 +42,13 @@ struct EventRow: View {
 			  .font(.headline)
 			  .bold()
 		    Text(event.date.formatted(date: .numeric, time: .shortened))
-		    Text(relativeDate)
+		    GeometryReader { geometry in
+			  HStack(spacing: 6) {
+//				Text(relativeDate)
+				Text(countDown(from: currentTime))
+			  }
+		    }
+			
 		}
 		.padding()
 		Spacer()
@@ -54,7 +62,8 @@ struct EventRow: View {
 
 	  }
 	  .onAppear() {
-		Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { _ in
+		print(countDown(from: currentTime))
+		Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
 		    Task { @MainActor in
 			  self.currentTime = Date()
 		    }
@@ -62,12 +71,32 @@ struct EventRow: View {
 	  }
     }
     
+    func countDown(from todaysDate: Date) -> String {
+	  let components = Calendar.current.dateComponents([.month, .weekOfMonth, .day, .hour, .minute, .second], from: todaysDate, to: event.date)
+	  var result = ""
+	  if let months = components.month, months > 0 {
+		result += "\(months)M, "
+	  }
+	  if let weeks = components.weekOfMonth, weeks > 0 {
+		result += "\(weeks)wk, "
+	  }
+	  if let days = components.day, days > 0 {
+		result += "\(days)D, "
+	  }
+	  if let hours = components.hour, hours > 0 {
+		result += "\(hours)H, "
+	  }
+	  if let minutes = components.minute, minutes > 0 {
+		result += "\(minutes)Min, "
+	  }
+	  if let seconds = components.second, seconds >= 0 {
+		result += "\(seconds)S"
+	  }
+	  return result.trimmingCharacters(in: .whitespaces)
+    }
+    
 }
 
 #Preview {
     EventRow(event: Event(title: "Test", date: Date.now, textColor: .cyan))
 }
-/*
-
- 
- */
